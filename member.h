@@ -66,6 +66,7 @@ public:
 
             thisPtr->link = purchaseHead;
             purchaseHead = thisPtr;
+            thisPtr = nullptr;
         }
     }
 
@@ -124,7 +125,7 @@ public:
     void setSpent(double totalSpent);
     void setLink(member* link);
 
-    void spend(const product& item, int quantity);
+    void spend(const product& item, int quantity, int date[]);
 
     member& operator= (const member& otherMember);
     member& operator= (const p_member& otherMember);
@@ -138,7 +139,7 @@ private:
     member* link;                   //CALC - The pointer to the next member in the linked list.
     purchase* purchaseHead;         //CALC/OUT - Linked List holding the purchases of a member
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
-        //the size of the purchases linked list
+                                                //the size of the purchases linked list
 };
 
 
@@ -165,15 +166,11 @@ public:
 
     ~p_member(): ~member() {}                                                           //destructor
 
-
     /***************
     ** ACCESSORS **
     ***************/
     double getRebate() {return rebateAmount;}
     bool recommendSwitch();
-
-    bool operator==(const member& otherMember);
-    bool operator==(const p_member& otherMember);
 
     /***************
     /** MUTATORS **
@@ -181,7 +178,7 @@ public:
     p_member& operator= (const p_member& otherMember);
     p_member& operator= (const member& otherMember);
 
-    void spend(const product &item, int quantity);
+    void spend(const product &item, int quantity, int date[]);
     void calcRebate();
 
 private:
@@ -399,7 +396,7 @@ private:
 *******************************************************************/
 
 /*******************************************************************
-* void setMembershipType(std::string membershipType);
+* void setType(std::string membershipType);
 *
 * Mutator; This method sets the membershipType attribute to the given
 * parameter.
@@ -443,14 +440,14 @@ private:
 *******************************************************************/
 
 /*******************************************************************
-* void spend(const product& item, int quantity);
+* void spend(const product& item, int quantity, int date[]);
 *
 * Mutator; This method increments the transactions attribute,
-* adds a purchase with the given product and quantity to the
-* purchases linked list, and increases totalSpent by the appropriate
-* amount.
+* adds a purchase with the given product, quantity, and date to the
+* front of the purchases linked list, and increases totalSpent by
+* the appropriate amount.
 *------------------------------------------------------------------
-* Parameter: item (const product&), quantity (int)
+* Parameter: item (const product&), quantity (int), date (int[])
 *------------------------------------------------------------------
 * Return: none
 *******************************************************************/
@@ -572,30 +569,6 @@ private:
 * Return: true if should switch, else false
 *******************************************************************/
 
-/*******************************************************************
-* bool operator== (const member& otherMember);
-*
-* Accessor; This method compares the ids of a preferred member (this
-* member) and a basic member (otherMember) to see if there is
-* a repitition in the member numbers, which isn't allowed.
-*------------------------------------------------------------------
-* Parameter: otherMember (const member&)
-*------------------------------------------------------------------
-* Return: true if member numbers are equal, else false.
-*******************************************************************/
-
-/*******************************************************************
-* bool operator== (const p_member& otherMember);
-*
-* Accessor; This method compares the ids of both preferred members to
-* see if there is a repitition in the member numbers, which isn't
-* allowed.
-*------------------------------------------------------------------
-* Parameter: otherMember (const p_member&)
-*------------------------------------------------------------------
-* Return: true if member numbers are equal, else false.
-*******************************************************************/
-
 /***************
 **  MUTATORS  **
 ***************/
@@ -625,14 +598,14 @@ private:
 *******************************************************************/
 
 /*******************************************************************
-* void spend(const product& item, int quantity);
+* void spend(const product& item, int quantity, int date[]);
 *
 * Mutator; This method increments the transactions attribute,
-* adds a purchase with the given product and quantity to the
-* purchases linked list, increases totalSpent by the appropriate
-* amount, and then recalculates the rebate amount.
+* adds a purchase with the given product, quantity, and date to the
+* front of the purchases linked list, increases totalSpent by the
+* appropriate amount, and then recalculates the rebate ammount.
 *------------------------------------------------------------------
-* Parameter: item (const product&), quantity (int)
+* Parameter: item (const product&), quantity (int), date (int[])
 *------------------------------------------------------------------
 * Return: none
 *******************************************************************/
