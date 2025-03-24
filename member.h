@@ -9,12 +9,27 @@
 
 double const REBATE = 0.05, BASIC_DUE = 60.00, PREFERRED_DUE = 75.00, SALES_TAX = 0.0875;
 
+//forward declaration needed for constructor that takes child object parameter
+class p_member;
+
+
 //Creates objects that represent purchases by a member.
 struct purchase
 {
     product item;       //CALC/OUT - The product being bought during this purchase
     int quantity;       //CALC/OUT - The quantity of the product being purchased
     int date[3];        //IN/OUT - The date that the purchase was made on, {month, day, year}
+
+    purchase(){
+        //might need implementation
+    }
+
+    purchase(const product& prod, int q, int d[]){
+        item = prod;
+        quantity = q;
+        for(int i = 0; i < 3; i++)
+            date[i] = d[i];
+    }
 };
 
 class member
@@ -33,12 +48,12 @@ public:
         purchaseHead(nullptr),
         transactions(0) {}
 
-    member(std::string name, int membershipNum,                     //constructor
-           std::string membershipType, int membershipExpDate[]) :
+    member(string name, int membershipNum,                     //constructor
+           string membershipType, int membershipExpDate[]) :
         name(name),
         membershipNum(membershipNum),
         membershipType(membershipType),
-        membershipExpDate(membershipExpDate),
+        membershipExpDate({membershipExpDate[0], membershipExpDate[1], membershipExpDate[2]}),
         totalSpent(0),
         purchaseHead(nullptr),
         transactions(0) {}
@@ -77,9 +92,10 @@ public:
     std::string getName() const {return name;}
     int getMembershipNum() const {return membershipNum;}
     std::string getType() const {return membershipType;}
-    int* getExpDate() const {return membershipExpDate;}
+    const int* getExpDate() const {return membershipExpDate;}       //return need be constant, no modification
     double getSpent() const {return totalSpent;}
     int getTransactions() const {return transactions;}
+    const node<purchase>* getHead() const{ return purchaseHead; }
 
     void reportPurchases();
     bool recommendSwitch();
@@ -90,11 +106,13 @@ public:
     /***************
     /** MUTATORS **
     ***************/
-    void setName(std::string name);
-    void setMembershipNum(int membershipNum);
-    void setType(std::string membershipType);
+    inline void setName(string n){ name = n; }
+    inline void setMembershipNum(int mNum){ membershipNum = mNum; };
+    inline void setType(string mType) { membershipType = mType; };
+    inline void setSpent(double spent){ totalSpent = spent; }
+    inline void setTransactions(int t){ transactions = t; };
     void setExpDate(int membershipExpDate[]);
-    void setSpent(double totalSpent);
+    void setExpDate(const int membershipExpDate[]);
 
     void spend(const product& item, int quantity, int date[]);
 
@@ -113,47 +131,6 @@ private:
 };
 
 
-class p_member: public member
-{
-public:
-
-    /******************************
-    ** CONSTRUCTORS & DESTRUCTOR **
-    ******************************/
-    p_member(): member(), rebateAmount(0) {}                                            //default constructor
-
-    p_member(std::string name, int membershipNum,                                       //constructor
-             std::string membershipType, int membershipExpDate[]):
-        member(name, membershipNum, membershipType, membershipExpDate),
-        rebateAmount(0) {}
-
-    p_member(const p_member& otherP):                                                   //copy constructor
-        member(otherP),
-        rebateAmount(otherP.rebateAmount) {}
-
-    p_member(const member& otherP):                                                   //copy constructor
-        member(otherP) {calcRebate();}
-
-    ~p_member() : ~member() {}                                                           //destructor
-
-    /***************
-    ** ACCESSORS **
-    ***************/
-    double getRebate() {return rebateAmount;}
-    bool recommendSwitch();
-
-    /***************
-    /** MUTATORS **
-    ***************/
-    p_member& operator= (const p_member& otherMember);
-    p_member& operator= (const member& otherMember);
-
-    void spend(const product &item, int quantity, int date[]);
-    void calcRebate();
-
-private:
-    double rebateAmount;            //CALC/OUT - Amount to be rebated at end of year, for preferred members only
-};
 
 
 #endif // MEMBER_H

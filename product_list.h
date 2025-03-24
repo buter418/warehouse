@@ -34,6 +34,7 @@ public:
 
 private:
     node<product>* head;
+    
     int size;
     int date[3];
 };
