@@ -76,17 +76,15 @@ void member::setSpent(int totalSpent) {
 
 
 void member::spend(const product& item, int quantity, int date[]) {
-    purchase* newPurchase = new purchase;
-    newPurchase->item = item;
-    newPurchase->quantity = quantity;
+    purchase newPurchase = purchase();
+    newPurchase.item = item;
+    newPurchase.quantity = quantity;
     for (int i = 0; i < 3; i++)
-        newPurchase->date[i] = date[i];
+        newPurchase.date[i] = date[i];
 
-    newPurchase->link = purchaseHead;
-    purchaseHead = newPurchase;
-    newPurchase = nullptr;
+    insert_head<purchase>(purchaseHead, newPurchase);
 
-    totalSpent += purchaseHead->item.getPrice() * purchaseHead->quantity;
+    totalSpent += purchaseHead->_item.item.getPrice() * purchaseHead->_item.quantity;
     transactions++;
 }
 
@@ -101,20 +99,7 @@ member& member::operator =(const member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    int i = 0;
-    for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-         i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-    {
-        thisPtr = new purchase;
-        thisPtr->item = otherPtr->item;
-        thisPtr->quantity = otherPtr->quantity;
-        for (int i = 0; i < 3; i++)
-            thisPtr->date[i] = otherPtr->date[i];
-
-        thisPtr->link = purchaseHead;
-        purchaseHead = thisPtr;
-        thisPtr = nullptr;
-    }
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 
     return *this;
 }
@@ -130,20 +115,7 @@ member& member::operator =(const p_member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    int i = 0;
-    for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-         i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-    {
-        thisPtr = new purchase;
-        thisPtr->item = otherPtr->item;
-        thisPtr->quantity = otherPtr->quantity;
-        for (int i = 0; i < 3; i++)
-            thisPtr->date[i] = otherPtr->date[i];
-
-        thisPtr->link = purchaseHead;
-        purchaseHead = thisPtr;
-        thisPtr = nullptr;
-    }
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 
     return *this;
 }
@@ -165,20 +137,7 @@ p_member& p_member::operator =(const p_member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    int i = 0;
-    for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-         i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-    {
-        thisPtr = new purchase;
-        thisPtr->item = otherPtr->item;
-        thisPtr->quantity = otherPtr->quantity;
-        for (int i = 0; i < 3; i++)
-            thisPtr->date[i] = otherPtr->date[i];
-
-        thisPtr->link = purchaseHead;
-        purchaseHead = thisPtr;
-        thisPtr = nullptr;
-    }
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 
     return *this;
 }
@@ -194,20 +153,7 @@ p_member& p_member::operator =(const member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    int i = 0;
-    for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-         i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-    {
-        thisPtr = new purchase;
-        thisPtr->item = otherPtr->item;
-        thisPtr->quantity = otherPtr->quantity;
-        for (int i = 0; i < 3; i++)
-            thisPtr->date[i] = otherPtr->date[i];
-
-        thisPtr->link = purchaseHead;
-        purchaseHead = thisPtr;
-        thisPtr = nullptr;
-    }
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 
     calcRebate();
 
