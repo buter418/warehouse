@@ -4,7 +4,6 @@ product::product(std::string name, double price, int quantity) {
     this->name = name;
     this->price = price;
     this->quantity = quantity;
-    link = nullptr;
 }
 
 void product::setName(std::string name) {
@@ -21,10 +20,6 @@ void product::setQuantity(int quantity) {
 
 void product::increaseQuantity(int amount) {
     this->quantity += amount;
-}
-
-void product::setLink(product *link) {
-    this->link = link;
 }
 
 bool product::operator== (const product& otherProduct) {

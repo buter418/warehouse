@@ -2,6 +2,15 @@
 #define PRODUCT_H
 
 
+#include "linked_list_functions.h"
+#include "node.h"
+
+
+//-------------------------------------------------------------
+//please write assignment operator to ensure proper copy in product list
+//-------------------------------------------------------------
+
+
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
@@ -15,7 +24,6 @@ public:
     std::string getName() {return name;}
     double getPrice() {return price;}
     int getQuantity() {return quantity;}
-    product* getLink() {return link;}
 
     double getRevenue() {return price * quantity;}
 
@@ -23,7 +31,6 @@ public:
     void setPrice(double price);
     void setQuantity(int quantity);
     void increaseQuantity(int amount = 1);
-    void setLink(product* link);
 
     bool operator== (const product& otherProduct);
 
@@ -32,7 +39,6 @@ private:
     std::string name;
     double price;
     int quantity;
-    product* link;
 };
 
 #endif // PRODUCT_H

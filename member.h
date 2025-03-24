@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include "product.h"
+#include "linked_list_functions.h"
+#include "node.h"
+
 
 double const REBATE = 0.05, BASIC_DUE = 60.00, PREFERRED_DUE = 75.00, SALES_TAX = 0.0875;
 
@@ -11,7 +14,6 @@ struct purchase
 {
     product item;       //CALC/OUT - The product being bought during this purchase
     int date[3];        //IN/OUT - The date that the purchase was made on, {month, day, year}
-    purchase* link;     //CALC - The link to the next purchase in the purchases linked list.
 };
 
 class member
@@ -40,12 +42,12 @@ public:
     std::string getType() const {return membershipType;}
     int getExpDate(int index) const {return membershipExpDate[index];}
     double getSpent() const {return totalSpent;}
-    member* getLink() const {return link;}
-    purchase* getPurchaseHead() const {return purchaseHead;}
+    //member* getLink() const {return link;}
+    node<purchase>* getPurchaseHead() const {return purchaseHead;}
     int getTransactions() const {return transactions;}
     virtual double getRebate() = 0;
 
-    void reportPurchases();
+    //void reportPurchases();
     virtual bool recommendSwitch() = 0;
 
     bool operator==(const b_member& otherMember);
@@ -59,11 +61,8 @@ public:
     void setType(std::string membershipType);
     void setExpDate(int month, int day, int year);
     void setSpent(double totalSpent);
-    void setLink(member* link);
-    void deleteLink();
-    void setPurchaseHead(purchase* purchaseHead);
+    void setPurchaseHead(node<purchase>* purchaseHead);
     void setTransactions(int transactions);
-
     virtual void spend(const product& item, int date[]) = 0;
 
     member* clone(const b_member& otherMember);
@@ -75,8 +74,7 @@ private:
     std::string membershipType;     //IN/OUT - Membership type; either "basic" or "preferred"
     int membershipExpDate[3];       //IN/OUT - Date of membership expiration stored as an array of [month, day, year]
     double totalSpent;              //CALC/OUT - The total amount of money spent by this member's account in dollars
-    member* link;                   //CALC - The pointer to the next member in the linked list.
-    purchase* purchaseHead;         //CALC/OUT - Linked List holding the purchases of a member
+    node<purchase>* purchaseHead;   //CALC/OUT - Linked List holding the purchases of a member
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
                                                 //the size of the purchases linked list
 };
@@ -103,7 +101,7 @@ public:
     p_member(const b_member& otherP):                                                    //copy constructor
         member(otherP) {calcRebate();}
 
-    ~p_member();                                                                       //destructor
+    ~p_member();
 
     /***************
     ** ACCESSORS **

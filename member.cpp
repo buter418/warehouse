@@ -5,12 +5,12 @@ member::member():
     membershipNum(0),
     membershipType(""),
     totalSpent(0),
-    link(nullptr),
     purchaseHead(nullptr),
     transactions(0)
 {
     setExpDate(0, 0, 0);
 }
+
 
 member::member(std::string name, int membershipNum,                     //constructor
        std::string membershipType, int membershipExpDate[]) :
@@ -18,7 +18,6 @@ member::member(std::string name, int membershipNum,                     //constr
     membershipNum(membershipNum),
     membershipType(membershipType),
     totalSpent(0),
-    link(nullptr),
     purchaseHead(nullptr),
     transactions(0)
 {
@@ -30,11 +29,11 @@ member::member(const class p_member& otherMember):
     membershipNum(otherMember.membershipNum),
     membershipType(otherMember.membershipType),
     totalSpent(otherMember.totalSpent),
-    link(otherMember.link),
     transactions(otherMember.transactions)
 {
     setExpDate(otherMember.getExpDate(0), otherMember.getExpDate(1), otherMember.getExpDate(2));
 
+    /*
     int i = 0;
     for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
          i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
@@ -47,7 +46,9 @@ member::member(const class p_member& otherMember):
         thisPtr->link = purchaseHead;
         purchaseHead = thisPtr;
         thisPtr = nullptr;
-    }
+    }*/
+
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 }
 
 member::member(const class b_member& otherMember):
@@ -55,11 +56,10 @@ member::member(const class b_member& otherMember):
     membershipNum(otherMember.membershipNum),
     membershipType(otherMember.membershipType),
     totalSpent(otherMember.totalSpent),
-    link(otherMember.link),
     transactions(otherMember.transactions)
 {
     setExpDate(otherMember.getExpDate(0), otherMember.getExpDate(1), otherMember.getExpDate(2));
-
+/*
     int i = 0;
     for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
          i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
@@ -72,31 +72,42 @@ member::member(const class b_member& otherMember):
         thisPtr->link = purchaseHead;
         purchaseHead = thisPtr;
         thisPtr = nullptr;
-    }
+    }*/
+
+    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 }
 
 member::~member() {
     int i = 0;
-    for (purchase* current = purchaseHead; i < transactions ; i++)
+    for (node<purchase>* current = purchaseHead; i < transactions ; i++)
     {
-        purchase* placehold = current->link;
+        node<purchase>* placehold = current->_next;
         delete current;
         current = placehold;
         placehold = nullptr;
     }
-}
+    _clear_list(purchaseHead);
 
+}
+/*
 void member::reportPurchases() {
     int i = 0;
-    for (purchase* current = purchaseHead; i < transactions; i++, current = current->link)
+    for (node<purchase>* current = purchaseHead; i < transactions; i++, current = current->_next)
     {
+<<<<<<< HEAD
         std::cout << current->date[0] << "/" << current->date[1] << "/" << current->date[2] << std::endl;
         std::cout << "Product: " << current->item.getName() << std::endl;
         std::cout << "Price: " << current->item.getPrice() << std::endl;
         std::cout << "Quantity: " << current->item.getQuantity() << std::endl;
+=======
+        std::cout << current->_item.date[0] << "/" << current->_item.date[1] << "/" << current->_item.date[2] << std::endl;
+        std::cout << "Product: " << current->_item.item.name << std::endl;
+        std::cout << "Price: " << current->_item.item.price << std::endl;
+        std::cout << "Quantity: " << current->_item.quantity << std::endl;
+>>>>>>> 6a7f705e46a782fbcca26ef9d2333fa6ddeb6e67
         std::cout << "---------------------------------------------\n";
     }
-}
+}*/
 
 
 bool member::operator ==(const b_member& otherMember) {
@@ -141,15 +152,7 @@ void member::setSpent(double totalSpent) {
 }
 
 
-void member::setLink(member* link) {
-    this->link = link;
-}
-
-void member::deleteLink() {
-    delete link;
-}
-
-void member::setPurchaseHead(purchase *purchaseHead) {
+void member::setPurchaseHead(node<purchase> *purchaseHead) {
     this->purchaseHead = purchaseHead;
 }
 
@@ -174,9 +177,9 @@ member* member::clone(const p_member& otherMember) {
 
 p_member::~p_member() {
     int i = 0;
-    for (purchase* current = getPurchaseHead(); i < getTransactions() ; i++)
+    for (node<purchase>* current = getPurchaseHead(); i < getTransactions() ; i++)
     {
-        purchase* placehold = current->link;
+        node<purchase>* placehold = current->_next;
         delete current;
         current = placehold;
         placehold = nullptr;
@@ -198,16 +201,16 @@ bool p_member::recommendSwitch() {
 
 
 void p_member::spend(const product& item, int date[]) {
-    purchase* newPurchase = new purchase;
-    newPurchase->item = item;
+    node<purchase>* newPurchase = new node<purchase>;
+    newPurchase->_item.item = item;
     for (int i = 0; i < 3; i++)
-        newPurchase->date[i] = date[i];
+        newPurchase->_item.date[i] = date[i];
 
-    newPurchase->link = getPurchaseHead();
+    newPurchase->_next = getPurchaseHead();
     setPurchaseHead(newPurchase);
     newPurchase = nullptr;
 
-    setSpent(getSpent() + getPurchaseHead()->item.getPrice() * getPurchaseHead()->item.getQuantity());
+    setSpent(getSpent() + getPurchaseHead()->_item.item.getPrice() * getPurchaseHead()->_item.item.getQuantity());
     setTransactions(getTransactions() + 1);
 
     calcRebate();
@@ -221,9 +224,9 @@ void p_member::calcRebate() {
 
 b_member::~b_member() {
     int i = 0;
-    for (purchase* current = getPurchaseHead(); i < getTransactions() ; i++)
+    for (node<purchase>* current = getPurchaseHead(); i < getTransactions() ; i++)
     {
-        purchase* placehold = current->link;
+        node<purchase>* placehold = current->_next;
         delete current;
         current = placehold;
         placehold = nullptr;
@@ -244,15 +247,15 @@ bool b_member::recommendSwitch() {
 
 
 void b_member::spend(const product& item, int date[]) {
-    purchase* newPurchase = new purchase;
-    newPurchase->item = item;
+    node<purchase>* newPurchase = new node<purchase>;
+    newPurchase->_item.item = item;
     for (int i = 0; i < 3; i++)
-        newPurchase->date[i] = date[i];
+        newPurchase->_item.date[i] = date[i];
 
-    newPurchase->link = getPurchaseHead();
+    newPurchase->_next = getPurchaseHead();
     setPurchaseHead(newPurchase);
     newPurchase = nullptr;
 
-    setSpent(getSpent() + getPurchaseHead()->item.getPrice() * getPurchaseHead()->item.getQuantity());
+    setSpent(getSpent() + getPurchaseHead()->_item.item.getPrice() * getPurchaseHead()->_item.item.getQuantity());
     setTransactions(getTransactions() + 1);
 }
