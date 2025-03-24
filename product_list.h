@@ -2,12 +2,15 @@
 #define PRODUCT_LIST_H
 
 #include "product.h"
+#include "member.h"
+
+class MainWindow;
 
 class product_list
 {
 public:
     product_list(): head(nullptr), size(0) {setDate(0, 0, 0);}
-    product_list(std::string filename);
+    product_list(const QString filename/*, member** todayMembers*/);
     product_list(const product_list& otherList);
     ~product_list();
 
@@ -16,6 +19,7 @@ public:
     int getMonth() const {return date[0];}
     int getDay() const {return date[1];}
     int getYear() const {return date[2];}
+    bool isEmpty();
 
     void setHead(product* head);
     void setSize(int size);
@@ -25,6 +29,9 @@ public:
     product* checkProducts(product* prod);
     void addProduct(product* prod);
     double calcTotal();
+
+    void setSalesTable(QTableWidget* tableWidget);
+    void setYearTable(QTableWidget* tableWidget);
 
     product_list& operator= (const product_list& otherList);
 

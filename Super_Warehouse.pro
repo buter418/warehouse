@@ -11,11 +11,15 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    member.cpp
+    member.cpp \
+    product.cpp \
+    product_list.cpp
 
 HEADERS += \
     mainwindow.h \
-    member.h
+    member.h \
+    product.h \
+    product_list.h
 
 FORMS += \
     mainwindow.ui
@@ -24,3 +28,14 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    day1.txt \
+    day2.txt \
+    day3.txt \
+    day4.txt \
+    day5.txt \
+    warehouse_shoppers.txt
+
+RESOURCES += \
+    textfiles.qrc

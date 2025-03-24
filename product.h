@@ -3,6 +3,10 @@
 
 
 #include <iostream>
+#include <QFile>
+#include <QTextStream>
+#include <QStringList>
+#include <QTableWidget>
 class product
 {
 public:
@@ -12,6 +16,8 @@ public:
     double getPrice() {return price;}
     int getQuantity() {return quantity;}
     product* getLink() {return link;}
+
+    double getRevenue() {return price * quantity;}
 
     void setName(std::string name);
     void setPrice(double price);

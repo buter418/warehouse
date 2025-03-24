@@ -10,7 +10,6 @@ double const REBATE = 0.05, BASIC_DUE = 60.00, PREFERRED_DUE = 75.00, SALES_TAX 
 struct purchase
 {
     product item;       //CALC/OUT - The product being bought during this purchase
-    int quantity;       //CALC/OUT - The quantity of the product being purchased
     int date[3];        //IN/OUT - The date that the purchase was made on, {month, day, year}
     purchase* link;     //CALC - The link to the next purchase in the purchases linked list.
 };
@@ -22,81 +21,16 @@ public:
     /******************************
     ** CONSTRUCTORS & DESTRUCTOR **
     ******************************/
-    member():                                                       //default constructor
-        name(""),
-        membershipNum(0),
-        membershipType(""),
-        membershipExpDate({0, 0, 0}),
-        totalSpent(0),
-        link(nullptr),
-        purchaseHead(nullptr),
-        transactions(0) {}
+    member();                                                       //default constructor
 
     member(std::string name, int membershipNum,                     //constructor
-           std::string membershipType, int membershipExpDate[]) :
-        name(name),
-        membershipNum(membershipNum),
-        membershipType(membershipType),
-        membershipExpDate(membershipExpDate),
-        totalSpent(0),
-        link(nullptr),
-        purchaseHead(nullptr),
-        transactions(0) {}
+           std::string membershipType, int membershipExpDate[]);
 
-    member(const member& otherMember):                              //copy constructor
-        name(otherMember.name),
-        membershipNum(otherMember.membershipNum),
-        membershipType(otherMember.membershipType),
-        totalSpent(otherMember.totalSpent),
-        link(otherMember.link),
-        transactions(otherMember.transactions)
-    {
-        for (int i = 0; i < 3; i++)
-            this->membershipExpDate[i] = otherMember.membershipExpDate[i];
+    member(const class p_member& otherMember);
 
-        int i = 0;
-        for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-             i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-        {
-            thisPtr = new purchase;
-            thisPtr->item = otherPtr->item;
-            thisPtr->quantity = otherPtr->quantity;
-            for (int i = 0; i < 3; i++)
-                thisPtr->date[i] = otherPtr->date[i];
+    member(const class b_member& otherMember);
 
-            thisPtr->link = purchaseHead;
-            purchaseHead = thisPtr;
-            thisPtr = nullptr;
-        }
-    }
-
-    member(const p_member& otherMember):                            //copy constructor for p_members for switching memberships
-        name(otherMember.name),
-        membershipNum(otherMember.membershipNum),
-        membershipType(otherMember.membershipType),
-        totalSpent(otherMember.totalSpent),
-        link(otherMember.link),
-        transactions(otherMember.transactions)
-    {
-        for (int i = 0; i < 3; i++)
-            this->membershipExpDate[i] = otherMember.membershipExpDate[i];
-
-        int i = 0;
-        for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-             i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-        {
-            thisPtr = new purchase;
-            thisPtr->item = otherPtr->item;
-            thisPtr->quantity = otherPtr->quantity;
-            for (int i = 0; i < 3; i++)
-                thisPtr->date[i] = otherPtr->date[i];
-
-            thisPtr->link = purchaseHead;
-            purchaseHead = thisPtr;
-        }
-    }
-
-    ~member();                                                      //destructor
+    virtual ~member();                                                      //destructor
 
     /***************
     ** ACCESSORS **
@@ -104,15 +38,17 @@ public:
     std::string getName() const {return name;}
     int getMembershipNum() const {return membershipNum;}
     std::string getType() const {return membershipType;}
-    int* getExpDate() const {return membershipExpDate;}
+    int getExpDate(int index) const {return membershipExpDate[index];}
     double getSpent() const {return totalSpent;}
     member* getLink() const {return link;}
+    purchase* getPurchaseHead() const {return purchaseHead;}
     int getTransactions() const {return transactions;}
+    virtual double getRebate() = 0;
 
     void reportPurchases();
-    bool recommendSwitch();
+    virtual bool recommendSwitch() = 0;
 
-    bool operator==(const member& otherMember);
+    bool operator==(const b_member& otherMember);
     bool operator==(const p_member& otherMember);
 
     /***************
@@ -121,14 +57,17 @@ public:
     void setName(std::string name);
     void setMembershipNum(int membershipNum);
     void setType(std::string membershipType);
-    void setExpDate(int membershipExpDate[]);
+    void setExpDate(int month, int day, int year);
     void setSpent(double totalSpent);
     void setLink(member* link);
+    void deleteLink();
+    void setPurchaseHead(purchase* purchaseHead);
+    void setTransactions(int transactions);
 
-    void spend(const product& item, int quantity, int date[]);
+    virtual void spend(const product& item, int date[]) = 0;
 
-    member& operator= (const member& otherMember);
-    member& operator= (const p_member& otherMember);
+    member* clone(const b_member& otherMember);
+    member* clone(const p_member& otherMember);
 
 private:
     std::string name;               //IN/OUT - Name of the member
@@ -161,10 +100,10 @@ public:
         member(otherP),
         rebateAmount(otherP.rebateAmount) {}
 
-    p_member(const member& otherP):                                                   //copy constructor
+    p_member(const b_member& otherP):                                                    //copy constructor
         member(otherP) {calcRebate();}
 
-    ~p_member(): ~member() {}                                                           //destructor
+    ~p_member();                                                                       //destructor
 
     /***************
     ** ACCESSORS **
@@ -175,16 +114,45 @@ public:
     /***************
     /** MUTATORS **
     ***************/
-    p_member& operator= (const p_member& otherMember);
-    p_member& operator= (const member& otherMember);
 
-    void spend(const product &item, int quantity, int date[]);
+    void spend(const product &item, int date[]);
     void calcRebate();
 
 private:
     double rebateAmount;            //CALC/OUT - Amount to be rebated at end of year, for preferred members only
 };
 
+
+class b_member: public member
+{
+public:
+
+    /******************************
+    ** CONSTRUCTORS & DESTRUCTOR **
+    ******************************/
+    b_member(): member() {}                                                       //default constructor
+
+    b_member(std::string name, int membershipNum,                     //constructor
+           std::string membershipType, int membershipExpDate[]) :
+        member(name, membershipNum, membershipType, membershipExpDate) {}
+
+    b_member(const b_member& otherMember):                              //copy constructor
+        member(otherMember) {}
+
+    ~b_member();                                                      //destructor
+
+    /***************
+    ** ACCESSORS **
+    ***************/
+    bool recommendSwitch();
+    double getRebate() {return 0;}
+
+    /***************
+    /** MUTATORS **
+    ***************/
+
+    void spend(const product& item, int date[]);
+};
 
 #endif // MEMBER_H
 
@@ -225,16 +193,6 @@ private:
 * Constructor; Initializes the attributes with the attributes
 * of the other member, and makes a deep copy of the otherMember's
 * purchases linked list.
-* Parameters: otherMember (const member&)
-* Return: none
-***************************************************************/
-
-/****************************************************************
-* member(const p_member& otherMember);
-* Constructor; Initializes the attributes with the attributes
-* of the preferred member, and makes a deep copy of the otherMember's
-* purchases linked list. Meant for switching a member's membership
-* type.
 * Parameters: otherMember (const member&)
 * Return: none
 ***************************************************************/
@@ -523,15 +481,6 @@ private:
 * Constructor; Initializes the attributes with the attributes
 * of the other member
 * Parameters: otherMember (const p_member&)
-* Return: none
-***************************************************************/
-
-/****************************************************************
-* p_member(const member& otherMember);
-* Constructor; Initializes the attributes with the attributes
-* of the other member, and then calculates rebate. Meant for
-* switching the membership type of a member.
-* Parameters: otherMember (const member&)
 * Return: none
 ***************************************************************/
 
