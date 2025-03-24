@@ -2,6 +2,8 @@
 #define PRODUCT_LIST_H
 
 #include "product.h"
+#include "linked_list_functions.h"
+#include "node.h"
 
 class product_list
 {
@@ -11,19 +13,19 @@ public:
     product_list(const product_list& otherList);
     ~product_list();
 
-    product* getHead() const {return head;}
+    node<product>* getHead() const {return head;}
     int getSize() const {return size;}
     int getMonth() const {return date[0];}
     int getDay() const {return date[1];}
     int getYear() const {return date[2];}
 
-    void setHead(product* head);
+    void setHead(node<product>* head);
     void setSize(int size);
     void incSize(int amount = 1);
     void setDate(int month, int day, int year);
 
-    product* checkProducts(product* prod);
-    void addProduct(product* prod);
+    node<product>* checkProducts(product prod);
+    void addProduct(product prod);
     double calcTotal();
 
     product_list& operator= (const product_list& otherList);
@@ -31,7 +33,7 @@ public:
     friend product_list operator+ (const product_list& list1, const product_list& list2);
 
 private:
-    product* head;
+    node<product>* head;
     int size;
     int date[3];
 };

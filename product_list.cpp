@@ -37,7 +37,7 @@ product_list::product_list(std::string filename) {
         quantity = std::stoi(quantityStr);
 
         setDate(month, day, year);
-        product* newProd = new product(name, price, quantity);
+        product newProd = product(name, price, quantity);
 
         addProduct(newProd);
 
@@ -52,26 +52,22 @@ product_list::product_list(const product_list& otherList) {
     size = otherList.size;
     setDate(otherList.getMonth(), otherList.getDay(), otherList.getYear());
 
-    for (product* current = otherList.head; current != nullptr; current = current->getLink())
-    {
-        product* newProd = new product(current->getName(), current->getPrice(), current->getQuantity());
+    for (node<product>* current = otherList.head; current != nullptr; current = current->_next){
+
+        //-------------------------------------------------------
+        //make sure no ptr in product, or it will be shallow copy
+        product newProd = current->_item;
+        //-------------------------------------------------------
 
         addProduct(newProd);
     }
 }
 
 product_list::~product_list() {
-    int i = 0;
-    for (product* current = head; i < size ; i++)
-    {
-        product* placehold = current->getLink();
-        delete current;
-        current = placehold;
-        placehold = nullptr;
-    }
+    _clear_list<product>(head);
 }
 
-void product_list::setHead(product* head) {
+void product_list::setHead(node<product>* head) {
     this->head = head;
 }
 
@@ -89,36 +85,30 @@ void product_list::setDate(int month, int day, int year) {
     date[2] = year;
 }
 
-product* product_list::checkProducts(product *prod) {
-    for (product* current = head; current != nullptr; current = current->getLink())
-        if (*current == *prod)
-            return current;
 
-    return nullptr;
+//check if repeated product exist if so return ptr to that repeated product
+node<product>* product_list::checkProducts(product prod) {
+    return _search_list<product>(head, prod);
 }
 
-void product_list::addProduct(product *prod) {
-    product* addSpot = checkProducts(prod);
+void product_list::addProduct(product prod) {
+    node<product>* addSpot = checkProducts(prod);
 
-    if (!addSpot)
-    {
-        prod->setLink(head);
-        head = prod;
+    //if no repeated product
+    if (!addSpot){
+        _insert_head<product>(head, prod);
         incSize();
     }
-    else
-    {
-        addSpot->increaseQuantity(prod->getQuantity());
+    else{
+        addSpot->_item.increaseQuantity(prod.getQuantity());
     }
 }
 
 double product_list::calcTotal() {
     double result = 0;
 
-    for (product* current = head; current != nullptr; current = current->getLink())
-    {
-        result += current->getPrice() * current->getQuantity();
-    }
+    for (node<product>* current = head; current != nullptr; current = current->_next)
+        result += current->_item.getPrice() * current->_item.getQuantity();
 
     return result;
 }
@@ -127,10 +117,8 @@ product_list& product_list::operator= (const product_list& otherList) {
     size = otherList.size;
     setDate(otherList.getMonth(), otherList.getDay(), otherList.getYear());
 
-    for (product* current = otherList.head; current != nullptr; current = current->getLink())
-    {
-        product* newProd = new product(current->getName(), current->getPrice(), current->getQuantity());
-
+    for (node<product>* current = otherList.head; current != nullptr; current = current->_next){
+        product newProd = current->_item;
         addProduct(newProd);
     }
 
@@ -140,9 +128,8 @@ product_list& product_list::operator= (const product_list& otherList) {
 product_list operator+ (const product_list& list1, const product_list& list2) {
     product_list newList = list1;
 
-    for (product* current = list2.head; current != nullptr; current = current->getLink()){
-        newList.addProduct(current);
-    }
+    for (node<product>* current = list2.head; current != nullptr; current = current->_next)
+        newList.addProduct(current->_item);
 
     return newList;
 }

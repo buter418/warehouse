@@ -2,27 +2,18 @@
 
 
 member::~member() {                                                     //destructor
-    delete link;
-
-    int i = 0;
-    for (purchase* current = purchaseHead; i < transactions ; i++)
-    {
-        purchase* placehold = current->link;
-        delete current;
-        current = placehold;
-        placehold = nullptr;
-    }
+    _clear_list(purchaseHead);
 }
 
 
 void member::reportPurchases() {
     int i = 0;
-    for (purchase* current = purchaseHead; i < transactions; i++, current = current->link)
+    for (node<purchase>* current = purchaseHead; i < transactions; i++, current = current->_next)
     {
-        std::cout << current->date[0] << "/" << current->date[1] << "/" << current->date[2] << std::endl;
-        std::cout << "Product: " << current->item.name << std::endl;
-        std::cout << "Price: " << current->item.price << std::endl;
-        std::cout << "Quantity: " << current->quantity << std::endl;
+        std::cout << current->_item.date[0] << "/" << current->_item.date[1] << "/" << current->_item.date[2] << std::endl;
+        std::cout << "Product: " << current->_item.item.name << std::endl;
+        std::cout << "Price: " << current->_item.item.price << std::endl;
+        std::cout << "Quantity: " << current->_item.quantity << std::endl;
         std::cout << "---------------------------------------------\n";
     }
 }
@@ -82,9 +73,6 @@ void member::setSpent(int totalSpent) {
 }
 
 
-void member::setLink(member* link) {
-    this->link = link;
-}
 
 
 void member::spend(const product& item, int quantity, int date[]) {

@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include "product.h"
+#include "linked_list_functions.h"
+#include "node.h"
+
 
 double const REBATE = 0.05, BASIC_DUE = 60.00, PREFERRED_DUE = 75.00, SALES_TAX = 0.0875;
 
@@ -12,7 +15,6 @@ struct purchase
     product item;       //CALC/OUT - The product being bought during this purchase
     int quantity;       //CALC/OUT - The quantity of the product being purchased
     int date[3];        //IN/OUT - The date that the purchase was made on, {month, day, year}
-    purchase* link;     //CALC - The link to the next purchase in the purchases linked list.
 };
 
 class member
@@ -28,7 +30,6 @@ public:
         membershipType(""),
         membershipExpDate({0, 0, 0}),
         totalSpent(0),
-        link(nullptr),
         purchaseHead(nullptr),
         transactions(0) {}
 
@@ -39,7 +40,6 @@ public:
         membershipType(membershipType),
         membershipExpDate(membershipExpDate),
         totalSpent(0),
-        link(nullptr),
         purchaseHead(nullptr),
         transactions(0) {}
 
@@ -48,26 +48,12 @@ public:
         membershipNum(otherMember.membershipNum),
         membershipType(otherMember.membershipType),
         totalSpent(otherMember.totalSpent),
-        link(otherMember.link),
         transactions(otherMember.transactions)
     {
         for (int i = 0; i < 3; i++)
             this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-        int i = 0;
-        for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-             i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-        {
-            thisPtr = new purchase;
-            thisPtr->item = otherPtr->item;
-            thisPtr->quantity = otherPtr->quantity;
-            for (int i = 0; i < 3; i++)
-                thisPtr->date[i] = otherPtr->date[i];
-
-            thisPtr->link = purchaseHead;
-            purchaseHead = thisPtr;
-            thisPtr = nullptr;
-        }
+        purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
     }
 
     member(const p_member& otherMember):                            //copy constructor for p_members for switching memberships
@@ -75,25 +61,12 @@ public:
         membershipNum(otherMember.membershipNum),
         membershipType(otherMember.membershipType),
         totalSpent(otherMember.totalSpent),
-        link(otherMember.link),
         transactions(otherMember.transactions)
     {
         for (int i = 0; i < 3; i++)
             this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-        int i = 0;
-        for (purchase* thisPtr = purchaseHead, *otherPtr = otherMember.purchaseHead;
-             i < otherMember.transactions; i++, thisPtr = thisPtr->link, otherPtr = otherPtr->link)
-        {
-            thisPtr = new purchase;
-            thisPtr->item = otherPtr->item;
-            thisPtr->quantity = otherPtr->quantity;
-            for (int i = 0; i < 3; i++)
-                thisPtr->date[i] = otherPtr->date[i];
-
-            thisPtr->link = purchaseHead;
-            purchaseHead = thisPtr;
-        }
+        purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
     }
 
     ~member();                                                      //destructor
@@ -106,7 +79,6 @@ public:
     std::string getType() const {return membershipType;}
     int* getExpDate() const {return membershipExpDate;}
     double getSpent() const {return totalSpent;}
-    member* getLink() const {return link;}
     int getTransactions() const {return transactions;}
 
     void reportPurchases();
@@ -123,7 +95,6 @@ public:
     void setType(std::string membershipType);
     void setExpDate(int membershipExpDate[]);
     void setSpent(double totalSpent);
-    void setLink(member* link);
 
     void spend(const product& item, int quantity, int date[]);
 
@@ -136,8 +107,7 @@ private:
     std::string membershipType;     //IN/OUT - Membership type; either "basic" or "preferred"
     int membershipExpDate[3];       //IN/OUT - Date of membership expiration stored as an array of [month, day, year]
     double totalSpent;              //CALC/OUT - The total amount of money spent by this member's account in dollars
-    member* link;                   //CALC - The pointer to the next member in the linked list.
-    purchase* purchaseHead;         //CALC/OUT - Linked List holding the purchases of a member
+    node<purchase>* purchaseHead;         //CALC/OUT - Linked List holding the purchases of a member
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
                                                 //the size of the purchases linked list
 };
@@ -164,7 +134,7 @@ public:
     p_member(const member& otherP):                                                   //copy constructor
         member(otherP) {calcRebate();}
 
-    ~p_member(): ~member() {}                                                           //destructor
+    ~p_member() : ~member() {}                                                           //destructor
 
     /***************
     ** ACCESSORS **

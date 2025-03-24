@@ -9,8 +9,7 @@
 #include <QLabel>
 #include <QStringList>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
     setWindowTitle("Amazon");
 
