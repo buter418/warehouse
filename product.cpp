@@ -28,3 +28,4 @@ bool product::operator== (const product& otherProduct) {
     else
         return false;
 }
+

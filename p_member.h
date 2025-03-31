@@ -31,23 +31,28 @@ public:
     p_member(const member& otherP):                                                   //copy constructor
         member(otherP) {calcRebate();}
 
-    ~p_member() : ~member() {}                                                           //destructor
+    ~p_member(){                                                                        //destructor
+        member::~member();
+    }                                                           
 
     /***************
     ** ACCESSORS **
     ***************/
-    double getRebate() {return rebateAmount;}
-    bool recommendSwitch();
+
+    double getRebate() override{return rebateAmount;}
+    bool recommendSwitch() override;
 
     /***************
     /** MUTATORS **
     ***************/
-    p_member& operator= (const p_member& otherMember);
-    p_member& operator= (const member& otherMember);
 
-    void spend(const product &item, int quantity, int date[]);
+    p_member& operator= (const p_member& otherMember) override;
+    p_member& operator= (const member& otherMember) override;
+
+    void spend(const product &item, int quantity, int date[]) override;
     void calcRebate();
 
+    
 private:
     double rebateAmount;            //CALC/OUT - Amount to be rebated at end of year, for preferred members only
 };

@@ -3,6 +3,32 @@
 //forward declaration
 #include "p_member.h"
 
+
+
+
+//*********************************
+//* Constructor
+//*********************************
+member::member(const p_member& otherMember):                            //copy constructor for p_members for switching memberships
+                name(otherMember.getName()),
+                membershipNum(otherMember.getMembershipNum()),
+                membershipType(otherMember.getType()),
+                totalSpent(otherMember.getSpent()),
+                transactions(otherMember.getTransactions())
+{
+    for (int i = 0; i < 3; i++)
+        this->membershipExpDate[i] = otherMember.getExpDate()[i];
+
+    purchaseHead = _copy_list<purchase>(otherMember.getHead());
+}
+
+
+
+
+
+
+
+
 //*********************************
 //* Destructor
 //*********************************
@@ -55,6 +81,7 @@ bool member::operator ==(const p_member& otherMember) {
 }
 
 
+
 //*********************************
 //* Mutators
 //*********************************
@@ -91,7 +118,7 @@ bool member::recommendSwitch() {
     if (annualCostB > annualCostP)
         return true;
     else
-        false;
+        return false;
 }
 
 

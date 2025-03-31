@@ -2,6 +2,7 @@
 #define MEMBER_H
 
 #include <iostream>
+#include <vector>
 #include "product.h"
 #include "linked_list_functions.h"
 #include "node.h"
@@ -71,54 +72,55 @@ public:
         purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
     }
 
-    member(const p_member& otherMember):                            //copy constructor for p_members for switching memberships
-        name(otherMember.name),
-        membershipNum(otherMember.membershipNum),
-        membershipType(otherMember.membershipType),
-        totalSpent(otherMember.totalSpent),
-        transactions(otherMember.transactions)
-    {
-        for (int i = 0; i < 3; i++)
-            this->membershipExpDate[i] = otherMember.membershipExpDate[i];
-
-        purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
-    }
+    member(const p_member& otherMember);                            //copy constructor for p_members for switching memberships
 
     ~member();                                                      //destructor
 
     /***************
     ** ACCESSORS **
     ***************/
-    std::string getName() const {return name;}
-    int getMembershipNum() const {return membershipNum;}
-    std::string getType() const {return membershipType;}
-    const int* getExpDate() const {return membershipExpDate;}       //return need be constant, no modification
-    double getSpent() const {return totalSpent;}
-    int getTransactions() const {return transactions;}
-    const node<purchase>* getHead() const{ return purchaseHead; }
+    inline virtual string getName() const {return name;}
+    inline virtual int getMembershipNum() const {return membershipNum;}
+    inline virtual string getType() const {return membershipType;}
+    //return need be constant, b/c exp date is a array, and all value within it are private, no modification
+    inline virtual const int* getExpDate() const {return membershipExpDate;}       
+    inline virtual double getSpent() const {return totalSpent;}
+    inline virtual int getTransactions() const {return transactions;}
+    inline virtual node<purchase>* getHead() const{ return purchaseHead; }
 
-    void reportPurchases();
-    bool recommendSwitch();
+    friend ostream& operator<<(ostream& outs, const member& pt_this){
+        outs << pt_this.getName() << "|";
+        outs << pt_this.getType() << "|";
+        outs << pt_this.getMembershipNum() << "|";
+        outs << pt_this.getSpent() << "|";
+        outs << pt_this.getTransactions();
+        return outs;
+    }
+    virtual void reportPurchases();
+    virtual bool recommendSwitch();                                             //override in p_member
+    virtual double getRebate(){ return 0; }
 
-    bool operator==(const member& otherMember);
-    bool operator==(const p_member& otherMember);
+    virtual bool operator==(const member& otherMember);
+    virtual bool operator==(const p_member& otherMember);
 
     /***************
     /** MUTATORS **
     ***************/
-    inline void setName(string n){ name = n; }
-    inline void setMembershipNum(int mNum){ membershipNum = mNum; };
-    inline void setType(string mType) { membershipType = mType; };
-    inline void setSpent(double spent){ totalSpent = spent; }
-    inline void setTransactions(int t){ transactions = t; };
-    void setExpDate(int membershipExpDate[]);
-    void setExpDate(const int membershipExpDate[]);
+    inline virtual void setName(string n){ name = n; }
+    inline virtual void setMembershipNum(int mNum){ membershipNum = mNum; };
+    inline virtual void setType(string mType) { membershipType = mType; };
+    inline virtual void setSpent(double spent){ totalSpent = spent; }
+    inline virtual void setTransactions(int t){ transactions = t; };
+    inline virtual void setHead(node<purchase>* h){ purchaseHead = h; }
+    virtual void setExpDate(int membershipExpDate[]);
+    virtual void setExpDate(const int membershipExpDate[]);
 
-    void spend(const product& item, int quantity, int date[]);
+    virtual void spend(const product& item, int quantity, int date[]);          //override in p_member
 
-    member& operator= (const member& otherMember);
-    member& operator= (const p_member& otherMember);
+    virtual member& operator= (const member& otherMember);                      //override in p_member
+    virtual member& operator= (const p_member& otherMember);                    //override in p_member
 
+    
 private:
     std::string name;               //IN/OUT - Name of the member
     int membershipNum;              //IN/OUT - Number used to identify the member
@@ -129,6 +131,12 @@ private:
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
                                                 //the size of the purchases linked list
 };
+
+
+
+
+
+
 
 
 

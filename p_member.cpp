@@ -4,37 +4,51 @@
 
 
 
-
+//*********************************
+//* 2 assignment operator
+//*********************************
 p_member& p_member::operator =(const p_member& otherMember) {
-    name = otherMember.name;
-    membershipNum = otherMember.membershipNum;
-    membershipType = otherMember.membershipType;
-    totalSpent = otherMember.totalSpent;
-    transactions = otherMember.transactions;
+    setName(otherMember.getName());
+    setMembershipNum(otherMember.getMembershipNum());
+    setType(otherMember.getType());
+    setSpent(otherMember.getSpent());
+    setTransactions(otherMember.getTransactions());
+    setExpDate(otherMember.getExpDate());
+    setHead(_copy_list<purchase>(otherMember.getHead()));
     rebateAmount = otherMember.rebateAmount;
-
-    for (int i = 0; i < 3; i++)
-        this->membershipExpDate[i] = otherMember.membershipExpDate[i];
-
-    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
 
     return *this;
 }
 p_member& p_member::operator =(const member& otherMember) {
-    name = otherMember.name;
-    membershipNum = otherMember.membershipNum;
-    membershipType = otherMember.membershipType;
-    totalSpent = otherMember.totalSpent;
-    transactions = otherMember.transactions;
-
-    for (int i = 0; i < 3; i++)
-        this->membershipExpDate[i] = otherMember.membershipExpDate[i];
-
-    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
-
+    setName(otherMember.getName());
+    setMembershipNum(otherMember.getMembershipNum());
+    setType(otherMember.getType());
+    setSpent(otherMember.getSpent());
+    setTransactions(otherMember.getTransactions());
+    setExpDate(otherMember.getExpDate());
+    setHead(_copy_list<purchase>(otherMember.getHead()));
     calcRebate();
 
     return *this;
 }
 
 
+
+//*********************************
+//* other member functions
+//*********************************
+bool p_member::recommendSwitch(){
+    return !member::recommendSwitch();
+}
+
+
+
+void p_member::spend(const product& item, int quantity, int date[]) {
+    member::spend(item, quantity, date);
+    calcRebate();
+}
+
+
+void p_member::calcRebate() {
+    rebateAmount = getSpent() * REBATE;
+}

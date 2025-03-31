@@ -4,7 +4,12 @@
 #include <iostream>
 #include <iomanip>
 #include "node.h"
+#include <algorithm>
+#include <unordered_map>
 #include <cassert>
+#include <string>
+#include <vector>
+
 using namespace std;
 
 
@@ -131,8 +136,30 @@ void print_list(node<T> *head_ptr, node<T>* target = nullptr){
         _print_list<ITEM_TYPE>(reversed);
     }
 
-//I C
-    //return ptr to key or NULL
+
+
+
+
+
+    //DATA_TYPE()
+    //1 = member
+    //2 = p_member
+    //3 = product
+    
+    //search_type
+    // name
+    // membership num
+    // total spent
+    // transaction
+    // rebate
+    // price
+    // quantity
+
+    // prime and regular membership()
+    // sorted by id()
+    // sorted by item name()
+    // find by expiration date()
+
     template <typename ITEM_TYPE>
     node<ITEM_TYPE>* _search_list(node<ITEM_TYPE>* head, ITEM_TYPE key){
         node<ITEM_TYPE>* walker = head;
@@ -143,6 +170,66 @@ void print_list(node<T> *head_ptr, node<T>* target = nullptr){
         }
         return nullptr;
     }
+
+
+    template <typename ITEM_TYPE>
+    node<ITEM_TYPE>* _member_search(node<ITEM_TYPE>* head, string name){
+        node<ITEM_TYPE>* walker = head;
+        while(walker != nullptr){
+            if(walker->_item.getName() == name)
+                return walker;
+            walker = walker->_next;
+        }
+        return nullptr;
+    }
+
+    template <typename ITEM_TYPE>
+    node<ITEM_TYPE>* _member_search(node<ITEM_TYPE>* head, int membershipNum){
+        node<ITEM_TYPE>* walker = head;
+        while(walker != nullptr){
+            if(walker->_item.getMembershipNum() == membershipNum)
+                return walker;
+            walker = walker->_next;
+        }
+        return nullptr;
+    }
+
+    template <typename ITEM_TYPE>
+    node<ITEM_TYPE>* _member_search(node<ITEM_TYPE>* head, int expMonth, int expYear){
+        node<ITEM_TYPE>* walker = head;
+        while(walker != nullptr){
+            if(walker->_item.getExpDate()[1] == expMonth && 
+                walker->_item.getExpDate()[3] == expYear)
+                return walker;
+            walker = walker->_next;
+        }
+        return nullptr;
+    }
+
+    //true if preferred, false if regular 
+    template <typename ITEM_TYPE>
+    node<ITEM_TYPE>* _member_search(node<ITEM_TYPE>* head, bool isPreferred){
+        node<ITEM_TYPE>* walker = head;
+        while(walker != nullptr){
+            if(walker->_item.getType() == "Preferred" && isPreferred ||
+                walker->_item.getType() == "Regular" && !isPreferred)
+                return walker;
+            walker = walker->_next;
+        }
+        return nullptr;
+    }
+
+    template <typename ITEM_TYPE>
+    node<ITEM_TYPE>* _product_search(node<ITEM_TYPE>* head, int name){
+        node<ITEM_TYPE>* walker = head;
+        while(walker != nullptr){
+            if(walker->_item.getName() == name)
+                return walker;
+            walker = walker->_next;
+        }
+        return nullptr;
+    }
+
 
 //I C
     //insert after ptr

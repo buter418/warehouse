@@ -9,7 +9,7 @@ struct node{
     T _item;
     node<T>* _next;
     node<T>* _prev;
-
+    
     node(const T& item = T(), node<T>* next = nullptr, node<T>* prev = nullptr) 
         : _item(item) , _next(next), _prev(prev) {}
 
