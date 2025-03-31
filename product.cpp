@@ -23,9 +23,20 @@ void product::increaseQuantity(int amount) {
 }
 
 bool product::operator== (const product& otherProduct) {
-    if (this->name == otherProduct.name)
-        return true;
-    else
-        return false;
+    return (this->name == otherProduct.name);
 }
 
+//Z>A
+bool product::operator>= (const product& otherProduct){
+    return this->name >= otherProduct.getName();
+}
+
+//A<Z
+bool product::operator<= (const product& otherProduct){
+    return this->name <= otherProduct.getName();
+}
+
+product& product::operator+= (const product& otherProduct){
+    quantity += otherProduct.quantity;
+    return *this;
+}

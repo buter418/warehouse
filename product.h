@@ -21,16 +21,22 @@ public:
     double getPrice() const{return price;}
     int getQuantity() const{return quantity;}
 
-    void setName(std::string name);
+    void setName(string name);
     void setPrice(double price);
     void setQuantity(int quantity);
     void increaseQuantity(int amount = 1);
 
     friend ostream& operator<<(ostream& outs, product pt_this){
-        outs << pt_this.getName();
+        outs << pt_this.getName() << "|"
+             << pt_this.getPrice() << "|"
+             << pt_this.getQuantity();
         return outs;
     }
     bool operator== (const product& otherProduct);
+    bool operator>= (const product& otherProduct);
+    bool operator<= (const product& otherProduct);
+
+    product& operator+= (const product& otherProduct);
 
 
 private:

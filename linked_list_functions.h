@@ -220,7 +220,7 @@ void print_list(node<T> *head_ptr, node<T>* target = nullptr){
     }
 
     template <typename ITEM_TYPE>
-    node<ITEM_TYPE>* _product_search(node<ITEM_TYPE>* head, int name){
+    node<ITEM_TYPE>* _product_search(node<ITEM_TYPE>* head, string name){
         node<ITEM_TYPE>* walker = head;
         while(walker != nullptr){
             if(walker->_item.getName() == name)

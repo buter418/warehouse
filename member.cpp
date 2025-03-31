@@ -19,7 +19,7 @@ member::member(const p_member& otherMember):                            //copy c
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.getExpDate()[i];
 
-    purchaseHead = _copy_list<purchase>(otherMember.getHead());
+    purchaseLst = otherMember.getLst();
 }
 
 
@@ -33,7 +33,7 @@ member::member(const p_member& otherMember):                            //copy c
 //* Destructor
 //*********************************
 member::~member() {                                                     
-    _clear_list(purchaseHead);
+    purchaseLst.~List();
 }
 
 
@@ -50,7 +50,7 @@ member& member::operator =(const member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
+    purchaseLst = otherMember.purchaseLst;
 
     return *this;
 }
@@ -64,7 +64,7 @@ member& member::operator =(const p_member& otherMember) {
     for (int i = 0; i < 3; i++)
         this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
+    purchaseLst = otherMember.purchaseLst;
 
     return *this;
 }
@@ -78,6 +78,35 @@ bool member::operator ==(const member& otherMember) {
 }
 bool member::operator ==(const p_member& otherMember) {
     return (membershipNum == otherMember.membershipNum);
+}
+
+bool member::operator>=(const member& otherMember){
+    return this->membershipNum >= otherMember.membershipNum;
+}
+bool member::operator>=(const p_member& otherMember){
+    return this->membershipNum >= otherMember.membershipNum;
+}
+
+bool member::operator<=(const p_member& otherMember){
+    return this->membershipNum <= otherMember.membershipNum;
+}
+bool member::operator<=(const member& otherMember){
+    return this->membershipNum <= otherMember.membershipNum;
+}
+
+member& member::operator+=(const member& otherMember){
+    totalSpent += otherMember.totalSpent;
+    transactions += otherMember.transactions;
+    for(List<purchase>::Iterator it = otherMember.purchaseLst.begin(); it != otherMember.purchaseLst.end(); it++)
+        purchaseLst.insert(*it);
+    return *this;
+}
+member& member::operator+=(const p_member& otherMember){
+    totalSpent += otherMember.totalSpent;
+    transactions += otherMember.transactions;
+    for(List<purchase>::Iterator it = otherMember.purchaseLst.begin(); it != otherMember.purchaseLst.end(); it++)
+        purchaseLst.insert(*it);
+    return *this;
 }
 
 
@@ -98,11 +127,11 @@ void member::setExpDate(const int membershipExpDate[3]) {
 //* other member functions
 //*********************************
 void member::reportPurchases() {
-    for (node<purchase>* current = purchaseHead; current != nullptr; current = current->_next){
-        std::cout << current->_item.date[0] << "/" << current->_item.date[1] << "/" << current->_item.date[2] << std::endl;
-        std::cout << "Product: " << current->_item.item.getName() << std::endl;
-        std::cout << "Price: " << current->_item.item.getPrice() << std::endl;
-        std::cout << "Quantity: " << current->_item.quantity << std::endl;
+    for (List<purchase>::Iterator current = purchaseLst.begin(); current != purchaseLst.end(); current++){
+        std::cout << current->date[0] << "/" << current->date[1] << "/" << current->date[2] << std::endl;
+        std::cout << "Product: " << current->item.getName() << std::endl;
+        std::cout << "Price: " << current->item.getPrice() << std::endl;
+        std::cout << "Quantity: " << current->quantity << std::endl;
         std::cout << "---------------------------------------------\n";
     }
 }
@@ -129,8 +158,7 @@ void member::spend(const product& item, int quantity, int date[]) {
     for (int i = 0; i < 3; i++)
         newPurchase.date[i] = date[i];
 
-    insert_head<purchase>(purchaseHead, newPurchase);
-
-    totalSpent += purchaseHead->_item.item.getPrice() * purchaseHead->_item.quantity;
+    List<purchase>::Iterator newIt = purchaseLst.insert(newPurchase);
+    totalSpent += newIt->item.getPrice() * newIt->quantity;
     transactions++;
 }

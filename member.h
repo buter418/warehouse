@@ -5,6 +5,7 @@
 #include <vector>
 #include "product.h"
 #include "linked_list_functions.h"
+#include "list_sorted.h"
 #include "node.h"
 
 
@@ -31,6 +32,47 @@ struct purchase
         for(int i = 0; i < 3; i++)
             date[i] = d[i];
     }
+
+    friend ostream& operator<<(ostream& outs, const purchase& pt_this){
+        outs << "{"<<pt_this.item << "}";
+        outs << pt_this.quantity << "|";
+        outs << pt_this.date[0] << "/";
+        outs << pt_this.date[1] << "/";
+        outs << pt_this.date[2];
+        return outs;
+    }
+
+    purchase& operator=(const purchase& other){
+        item = other.item;
+        quantity = other.quantity;
+        for(int i = 0; i < 3; i++)
+            date[i] = other.date[i];
+        return *this;
+    }
+
+    //more recent purchase are larger
+    bool operator>=(const purchase& other){
+        for(int i = 2; i >= 0; i--){
+            if(date[i] > other.date[i]){
+                return true;
+            }
+            else if(date[i] < other.date[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+    bool operator<=(const purchase& other){
+        for(int i = 2; i >= 0; i--){
+            if(date[i] < other.date[i]){
+                return true;
+            }
+            else if(date[i] > other.date[i]){
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 class member
@@ -46,7 +88,7 @@ public:
         membershipType(""),
         membershipExpDate({0, 0, 0}),
         totalSpent(0),
-        purchaseHead(nullptr),
+        purchaseLst(false, false),
         transactions(0) {}
 
     member(string name, int membershipNum,                     //constructor
@@ -56,7 +98,7 @@ public:
         membershipType(membershipType),
         membershipExpDate({membershipExpDate[0], membershipExpDate[1], membershipExpDate[2]}),
         totalSpent(0),
-        purchaseHead(nullptr),
+        purchaseLst(false, false),
         transactions(0) {}
 
     member(const member& otherMember):                              //copy constructor
@@ -69,7 +111,7 @@ public:
         for (int i = 0; i < 3; i++)
             this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-        purchaseHead = _copy_list<purchase>(otherMember.purchaseHead);
+        purchaseLst = otherMember.purchaseLst;
     }
 
     member(const p_member& otherMember);                            //copy constructor for p_members for switching memberships
@@ -86,7 +128,7 @@ public:
     inline virtual const int* getExpDate() const {return membershipExpDate;}       
     inline virtual double getSpent() const {return totalSpent;}
     inline virtual int getTransactions() const {return transactions;}
-    inline virtual node<purchase>* getHead() const{ return purchaseHead; }
+    inline virtual List<purchase> getLst() const{ return purchaseLst; }
 
     friend ostream& operator<<(ostream& outs, const member& pt_this){
         outs << pt_this.getName() << "|";
@@ -103,6 +145,14 @@ public:
     virtual bool operator==(const member& otherMember);
     virtual bool operator==(const p_member& otherMember);
 
+    virtual bool operator>=(const member& otherMember);
+    virtual bool operator>=(const p_member& otherMember);
+    virtual bool operator<=(const member& otherMember);
+    virtual bool operator<=(const p_member& otherMember);
+
+    virtual member& operator+=(const member& otherMember);
+    virtual member& operator+=(const p_member& otherMember);
+
     /***************
     /** MUTATORS **
     ***************/
@@ -111,7 +161,7 @@ public:
     inline virtual void setType(string mType) { membershipType = mType; };
     inline virtual void setSpent(double spent){ totalSpent = spent; }
     inline virtual void setTransactions(int t){ transactions = t; };
-    inline virtual void setHead(node<purchase>* h){ purchaseHead = h; }
+    inline virtual void setLst(List<purchase> h){ purchaseLst = h; }
     virtual void setExpDate(int membershipExpDate[]);
     virtual void setExpDate(const int membershipExpDate[]);
 
@@ -127,7 +177,7 @@ private:
     std::string membershipType;     //IN/OUT - Membership type; either "basic" or "preferred"
     int membershipExpDate[3];       //IN/OUT - Date of membership expiration stored as an array of [month, day, year]
     double totalSpent;              //CALC/OUT - The total amount of money spent by this member's account in dollars
-    node<purchase>* purchaseHead;         //CALC/OUT - Linked List holding the purchases of a member
+    List<purchase> purchaseLst;         //CALC/OUT - Sorted List holding the purchases of a member
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
                                                 //the size of the purchases linked list
 };

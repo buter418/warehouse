@@ -14,7 +14,7 @@ p_member& p_member::operator =(const p_member& otherMember) {
     setSpent(otherMember.getSpent());
     setTransactions(otherMember.getTransactions());
     setExpDate(otherMember.getExpDate());
-    setHead(_copy_list<purchase>(otherMember.getHead()));
+    setLst(otherMember.getLst());
     rebateAmount = otherMember.rebateAmount;
 
     return *this;
@@ -26,9 +26,20 @@ p_member& p_member::operator =(const member& otherMember) {
     setSpent(otherMember.getSpent());
     setTransactions(otherMember.getTransactions());
     setExpDate(otherMember.getExpDate());
-    setHead(_copy_list<purchase>(otherMember.getHead()));
+    setLst(otherMember.getLst());
     calcRebate();
 
+    return *this;
+}
+
+
+p_member& p_member::operator+=(const member& otherMember){
+    member::operator+=(otherMember);
+    return *this;
+}
+p_member& p_member::operator+=(const p_member& otherMember){
+    member::operator+=(otherMember);
+    rebateAmount += otherMember.rebateAmount;
     return *this;
 }
 

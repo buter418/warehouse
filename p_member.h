@@ -42,6 +42,9 @@ public:
     double getRebate() override{return rebateAmount;}
     bool recommendSwitch() override;
 
+    p_member& operator+=(const member& otherMember) override;
+    p_member& operator+=(const p_member& otherMember) override;
+
     /***************
     /** MUTATORS **
     ***************/
