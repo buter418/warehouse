@@ -116,7 +116,7 @@ public:
 
     member(const p_member& otherMember);                            //copy constructor for p_members for switching memberships
 
-    ~member();                                                      //destructor
+    virtual ~member();                                                      //destructor
 
     /***************
     ** ACCESSORS **
@@ -132,9 +132,9 @@ public:
 
     friend ostream& operator<<(ostream& outs, const member& pt_this){
         outs << pt_this.getName() << "|";
-        outs << pt_this.getType() << "|";
-        outs << pt_this.getMembershipNum() << "|";
-        outs << pt_this.getSpent() << "|";
+        outs << pt_this.getType() << "|ID:";
+        outs << pt_this.getMembershipNum() << "|$";
+        outs << pt_this.getSpent() << "|T:";
         outs << pt_this.getTransactions();
         return outs;
     }

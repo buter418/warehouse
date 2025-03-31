@@ -32,8 +32,8 @@ member::member(const p_member& otherMember):                            //copy c
 //*********************************
 //* Destructor
 //*********************************
-member::~member() {                                                     
-    purchaseLst.~List();
+member::~member() {                                               
+    
 }
 
 

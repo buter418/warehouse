@@ -31,9 +31,9 @@ public:
     p_member(const member& otherP):                                                   //copy constructor
         member(otherP) {calcRebate();}
 
-    ~p_member(){                                                                        //destructor
-        member::~member();
-    }                                                           
+    // ~p_member(){                                                                        //destructor
+    //     //member::~member();
+    // }                                                           
 
     /***************
     ** ACCESSORS **
