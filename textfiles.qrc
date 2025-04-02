@@ -6,5 +6,6 @@
         <file>day4.txt</file>
         <file>day5.txt</file>
         <file>warehouse_shoppers.txt</file>
+        <file>names.txt</file>
     </qresource>
 </RCC>

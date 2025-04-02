@@ -12,14 +12,21 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     member.cpp \
+    p_member.cpp \
     product.cpp \
-    product_list.cpp
+    product_list.cpp \
+    warehouse_function.cpp
 
 HEADERS += \
     mainwindow.h \
     member.h \
+    p_member.h \
     product.h \
-    product_list.h
+    product_list.h \
+    node.h \
+    list_sorted.h \
+    linked_list_functions.h \
+    warehouse_function.h
 
 FORMS += \
     mainwindow.ui
@@ -35,6 +42,7 @@ DISTFILES += \
     day3.txt \
     day4.txt \
     day5.txt \
+    names.txt \
     warehouse_shoppers.txt
 
 RESOURCES += \

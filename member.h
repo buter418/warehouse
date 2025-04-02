@@ -2,18 +2,77 @@
 #define MEMBER_H
 
 #include <iostream>
+#include <vector>
 #include "product.h"
 #include "linked_list_functions.h"
+#include "list_sorted.h"
 #include "node.h"
 
 
 double const REBATE = 0.05, BASIC_DUE = 60.00, PREFERRED_DUE = 75.00, SALES_TAX = 0.0875;
 
+//forward declaration needed for constructor that takes child object parameter
+class p_member;
+
+
 //Creates objects that represent purchases by a member.
 struct purchase
 {
     product item;       //CALC/OUT - The product being bought during this purchase
+    int quantity;       //CALC/OUT - The quantity of the product being purchased
     int date[3];        //IN/OUT - The date that the purchase was made on, {month, day, year}
+
+    purchase(){
+        //might need implementation
+    }
+
+    purchase(const product& prod, int q, int d[]){
+        item = prod;
+        quantity = q;
+        for(int i = 0; i < 3; i++)
+            date[i] = d[i];
+    }
+
+    friend ostream& operator<<(ostream& outs, const purchase& pt_this){
+        outs << "{"<<pt_this.item << "}";
+        outs << pt_this.quantity << "|";
+        outs << pt_this.date[0] << "/";
+        outs << pt_this.date[1] << "/";
+        outs << pt_this.date[2];
+        return outs;
+    }
+
+    purchase& operator=(const purchase& other){
+        item = other.item;
+        quantity = other.quantity;
+        for(int i = 0; i < 3; i++)
+            date[i] = other.date[i];
+        return *this;
+    }
+
+    //more recent purchase are larger
+    bool operator>=(const purchase& other){
+        for(int i = 2; i >= 0; i--){
+            if(date[i] > other.date[i]){
+                return true;
+            }
+            else if(date[i] < other.date[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+    bool operator<=(const purchase& other){
+        for(int i = 2; i >= 0; i--){
+            if(date[i] < other.date[i]){
+                return true;
+            }
+            else if(date[i] > other.date[i]){
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 class member
@@ -23,50 +82,94 @@ public:
     /******************************
     ** CONSTRUCTORS & DESTRUCTOR **
     ******************************/
-    member();                                                       //default constructor
+    member():                                                       //default constructor
+        name(""),
+        membershipNum(0),
+        membershipType(""),
+        membershipExpDate({0, 0, 0}),
+        totalSpent(0),
+        purchaseLst(false, false),
+        transactions(0) {}
 
-    member(std::string name, int membershipNum,                     //constructor
-           std::string membershipType, int membershipExpDate[]);
+    member(string name, int membershipNum,                     //constructor
+           string membershipType, int membershipExpDate[]) :
+        name(name),
+        membershipNum(membershipNum),
+        membershipType(membershipType),
+        membershipExpDate({membershipExpDate[0], membershipExpDate[1], membershipExpDate[2]}),
+        totalSpent(0),
+        purchaseLst(false, false),
+        transactions(0) {}
 
-    member(const class p_member& otherMember);
+    member(const member& otherMember):                              //copy constructor
+        name(otherMember.name),
+        membershipNum(otherMember.membershipNum),
+        membershipType(otherMember.membershipType),
+        totalSpent(otherMember.totalSpent),
+        transactions(otherMember.transactions)
+    {
+        for (int i = 0; i < 3; i++)
+            this->membershipExpDate[i] = otherMember.membershipExpDate[i];
 
-    member(const class b_member& otherMember);
+        purchaseLst = otherMember.purchaseLst;
+    }
+
+    member(const p_member& otherMember);                            //copy constructor for p_members for switching memberships
 
     virtual ~member();                                                      //destructor
 
     /***************
     ** ACCESSORS **
     ***************/
-    std::string getName() const {return name;}
-    int getMembershipNum() const {return membershipNum;}
-    std::string getType() const {return membershipType;}
-    int getExpDate(int index) const {return membershipExpDate[index];}
-    double getSpent() const {return totalSpent;}
-    //member* getLink() const {return link;}
-    node<purchase>* getPurchaseHead() const {return purchaseHead;}
-    int getTransactions() const {return transactions;}
-    virtual double getRebate() = 0;
+    inline virtual string getName() const {return name;}
+    inline virtual int getMembershipNum() const {return membershipNum;}
+    inline virtual string getType() const {return membershipType;}
+    //return need be constant, b/c exp date is a array, and all value within it are private, no modification
+    inline virtual const int* getExpDate() const {return membershipExpDate;}
+    inline virtual double getSpent() const {return totalSpent;}
+    inline virtual int getTransactions() const {return transactions;}
+    inline virtual List<purchase> getLst() const{ return purchaseLst; }
 
-    //void reportPurchases();
-    virtual bool recommendSwitch() = 0;
+    friend ostream& operator<<(ostream& outs, const member& pt_this){
+        outs << pt_this.getName() << "|";
+        outs << pt_this.getType() << "|ID:";
+        outs << pt_this.getMembershipNum() << "|$";
+        outs << pt_this.getSpent() << "|T:";
+        outs << pt_this.getTransactions();
+        return outs;
+    }
+    virtual void reportPurchases();
+    virtual bool recommendSwitch();                                             //override in p_member
+    virtual double getRebate(){ return 0; }
 
-    bool operator==(const b_member& otherMember);
-    bool operator==(const p_member& otherMember);
+    virtual bool operator==(const member& otherMember);
+    virtual bool operator==(const p_member& otherMember);
+
+    virtual bool operator>=(const member& otherMember);
+    virtual bool operator>=(const p_member& otherMember);
+    virtual bool operator<=(const member& otherMember);
+    virtual bool operator<=(const p_member& otherMember);
+
+    virtual member& operator+=(const member& otherMember);
+    virtual member& operator+=(const p_member& otherMember);
 
     /***************
     /** MUTATORS **
     ***************/
-    void setName(std::string name);
-    void setMembershipNum(int membershipNum);
-    void setType(std::string membershipType);
-    void setExpDate(int month, int day, int year);
-    void setSpent(double totalSpent);
-    void setPurchaseHead(node<purchase>* purchaseHead);
-    void setTransactions(int transactions);
-    virtual void spend(const product& item, int date[]) = 0;
+    inline virtual void setName(string n){ name = n; }
+    inline virtual void setMembershipNum(int mNum){ membershipNum = mNum; }
+    inline virtual void setType(string mType) { membershipType = mType; }
+    inline virtual void setSpent(double spent){ totalSpent = spent; }
+    inline virtual void setTransactions(int t){ transactions = t; }
+    inline virtual void setLst(List<purchase> h){ purchaseLst = h; }
+    virtual void setExpDate(int membershipExpDate[]);
+    virtual void setExpDate(const int membershipExpDate[]);
 
-    member* clone(const b_member& otherMember);
-    member* clone(const p_member& otherMember);
+    virtual void spend(const product& item, int quantity, int date[]);          //override in p_member
+
+    virtual member& operator= (const member& otherMember);                      //override in p_member
+    virtual member& operator= (const p_member& otherMember);                    //override in p_member
+
 
 private:
     std::string name;               //IN/OUT - Name of the member
@@ -74,82 +177,9 @@ private:
     std::string membershipType;     //IN/OUT - Membership type; either "basic" or "preferred"
     int membershipExpDate[3];       //IN/OUT - Date of membership expiration stored as an array of [month, day, year]
     double totalSpent;              //CALC/OUT - The total amount of money spent by this member's account in dollars
-    node<purchase>* purchaseHead;   //CALC/OUT - Linked List holding the purchases of a member
+    List<purchase> purchaseLst;         //CALC/OUT - Sorted List holding the purchases of a member
     int transactions;               //CALC/OUT - Number representing the number of purchases made by the user, and
-                                                //the size of the purchases linked list
-};
-
-
-class p_member: public member
-{
-public:
-
-    /******************************
-    ** CONSTRUCTORS & DESTRUCTOR **
-    ******************************/
-    p_member(): member(), rebateAmount(0) {}                                            //default constructor
-
-    p_member(std::string name, int membershipNum,                                       //constructor
-             std::string membershipType, int membershipExpDate[]):
-        member(name, membershipNum, membershipType, membershipExpDate),
-        rebateAmount(0) {}
-
-    p_member(const p_member& otherP):                                                   //copy constructor
-        member(otherP),
-        rebateAmount(otherP.rebateAmount) {}
-
-    p_member(const b_member& otherP):                                                    //copy constructor
-        member(otherP) {calcRebate();}
-
-    ~p_member();
-
-    /***************
-    ** ACCESSORS **
-    ***************/
-    double getRebate() {return rebateAmount;}
-    bool recommendSwitch();
-
-    /***************
-    /** MUTATORS **
-    ***************/
-
-    void spend(const product &item, int date[]);
-    void calcRebate();
-
-private:
-    double rebateAmount;            //CALC/OUT - Amount to be rebated at end of year, for preferred members only
-};
-
-
-class b_member: public member
-{
-public:
-
-    /******************************
-    ** CONSTRUCTORS & DESTRUCTOR **
-    ******************************/
-    b_member(): member() {}                                                       //default constructor
-
-    b_member(std::string name, int membershipNum,                     //constructor
-           std::string membershipType, int membershipExpDate[]) :
-        member(name, membershipNum, membershipType, membershipExpDate) {}
-
-    b_member(const b_member& otherMember):                              //copy constructor
-        member(otherMember) {}
-
-    ~b_member();                                                      //destructor
-
-    /***************
-    ** ACCESSORS **
-    ***************/
-    bool recommendSwitch();
-    double getRebate() {return 0;}
-
-    /***************
-    /** MUTATORS **
-    ***************/
-
-    void spend(const product& item, int date[]);
+        //the size of the purchases linked list
 };
 
 #endif // MEMBER_H
@@ -157,9 +187,9 @@ public:
 
 /****************************************************************
 * member Class
-* This class represents a member object with a basic membership.
-* It manages 8 attributes, name, membershipNumber, membershipType,
-* membershipExpDate, totalSpent, link, purchaseHead, and transactions
+* polymorphic class representing a member object..
+* It manages 7 attributes, name, membershipNumber, membershipType,
+* membershipExpDate, totalSpent, purchaseHead, and transactions
 ***************************************************************/
 
 /******************************

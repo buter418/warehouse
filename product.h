@@ -4,6 +4,10 @@
 
 #include "linked_list_functions.h"
 #include "node.h"
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cctype>
 
 
 //-------------------------------------------------------------
@@ -19,21 +23,45 @@
 class product
 {
 public:
-    product(std::string name = "", double price = 0, int quantity = 0);
+    /******************************
+    ** CONSTRUCTORS & DESTRUCTOR **
+    ******************************/
+    product(std::string name = "", double price = 0, int quantity = 0);             //Default constructor
+    product(const product& otherProd);                                              //Copy Constructor
 
-    std::string getName() {return name;}
-    double getPrice() {return price;}
-    int getQuantity() {return quantity;}
-
+    /***************
+    ** ACCESSORS **
+    ***************/
+    std::string getName() const{return name;}
+    double getPrice() const{return price;}
+    int getQuantity() const{return quantity;}
     double getRevenue() {return price * quantity;}
 
+
+    /***************
+    /** MUTATORS **
+    ***************/
     void setName(std::string name);
     void setPrice(double price);
     void setQuantity(int quantity);
     void increaseQuantity(int amount = 1);
 
-    bool operator== (const product& otherProduct);
+    friend ostream& operator<<(ostream& outs, product pt_this){
+        outs << pt_this.getName() << "|"
+             << pt_this.getPrice() << "|"
+             << pt_this.getQuantity();
 
+        return outs;
+    }
+
+
+    bool operator== (const product& otherProduct);
+    bool operator>= (const product& otherProduct);
+    bool operator<= (const product& otherProduct);
+
+    product& operator+= (const product& otherProduct);
+
+    product& operator= (const product& otherProd);
 
 private:
     std::string name;
