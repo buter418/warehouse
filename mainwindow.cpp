@@ -7,10 +7,20 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowTitle("Amazon");
 
+    QTimer *timer = new QTimer(this);
+    timer->start(3000);
+    connect(timer, &QTimer::timeout, this, [=]() {
+        statusBar()->showMessage(tr(" "));
+    });
+
+
+
     // Create the menu bar, toolbar, and status bar.
     createMenus();
     createToolBar();
     createStatusBar();
+
+
 
     // Set up the central widget with tabs.
     setupCentralWidget();
@@ -165,11 +175,19 @@ void MainWindow::setupCentralWidget()
     QLabel *searchMemLabel = new QLabel("Search Member:");
     searchMemberLineEdit = new QLineEdit();
     searchMemButton = new QPushButton("Search");
+    delMemButton = new QPushButton("Delete");
+    addMemButton = new QPushButton("Add");
+
     searchMemLayout->addWidget(searchMemLabel);
     searchMemLayout->addWidget(searchMemberLineEdit);
     searchMemLayout->addWidget(searchMemButton);
+    searchMemLayout->addWidget(delMemButton);
+    searchMemLayout->addWidget(addMemButton);
 
     memberLayout->addLayout(searchMemLayout);
+
+
+
     //----------------------------------------------
 
     // Table showing member details
@@ -183,6 +201,8 @@ void MainWindow::setupCentralWidget()
 
     //button event
     connect(searchMemButton, &QPushButton::clicked, this, &MainWindow::searchMemButtonClicked);
+    connect(delMemButton, &QPushButton::clicked, this, &MainWindow::delMemButtonClicked);
+    connect(addMemButton, &QPushButton::clicked, this, &MainWindow::addMemButtonClicked);
     // ----- Member Information Tab ------------------------------------------------------------------
 
 
@@ -386,10 +406,17 @@ void MainWindow::searchMemButtonClicked(){
         target = allMembers.member_search(strSearch);
     }
 
-    if(target.is_null())
+    if(target.is_null()){
+        statusBar()->showMessage(tr("not found"));
         return;
+    }
 
-    memberTable->setRowCount(target->getTransactions());
+    if(target->getTransactions() > 0){
+        memberTable->setRowCount(target->getTransactions());
+    }
+    else{
+        memberTable->setRowCount(1);
+    }
 
     QVariant nameValue(QString::fromStdString(target->getName()));
     QVariant memValue(target->getMembershipNum());
@@ -472,5 +499,85 @@ void MainWindow::searchSoldButtonClicked(){
     soldTable->setItem(0, 0, nameItem);
     soldTable->setItem(0, 1, quantityItem);
     soldTable->setItem(0, 2, priceItem);
+}
 
+
+void MainWindow::delMemButtonClicked(){
+    List<p_member>::Iterator target;
+    string strSearch = searchMemberLineEdit->text().toStdString();
+    try{
+        int numSearch = stoi(strSearch);
+        target = allMembers.member_search(numSearch);
+    }catch(const exception& e){
+        target = allMembers.member_search(strSearch);
+    }
+
+    if(target.is_null()){
+        statusBar()->showMessage(tr("not found"));
+        return;
+    }
+
+    memberTable->setRowCount(0);
+    allMembers.Delete(target);
+}
+
+
+void MainWindow::addMemButtonClicked(){
+    List<p_member>::Iterator target;
+    string newMemStr = searchMemberLineEdit->text().toStdString();
+
+    string name;
+    int memNum;
+    string memType;
+    int ExpDate[3];
+
+    int prevIndex;
+    int strIndex = -1;
+    for(int i = 0; i < 4; i++){
+        strIndex = strIndex + 1;
+        prevIndex = strIndex;
+        strIndex = newMemStr.find(',', strIndex);
+        if(strIndex == string::npos){
+            strIndex = newMemStr.size() - 1;
+        }
+
+        string obj = newMemStr.substr(prevIndex, strIndex - prevIndex);
+        switch(i){
+        case 0:
+            name = obj;
+            break;
+        case 1:
+            memNum = stoi(obj);
+            break;
+        case 2:
+            memType = obj;
+            break;
+        case 3:
+            ExpDate[0] = stoi(obj.substr(0, 2));
+            ExpDate[1] = stoi(obj.substr(2, 4));
+            ExpDate[2] = stoi(obj.substr(4, 8));
+            break;
+        default:
+            break;
+        }
+    }
+
+    statusBar()->showMessage(tr(name.c_str()));
+    p_member newMem = p_member(name, memNum, memType, ExpDate);
+    allMembers.insert(newMem);
+
+    // try{
+    //     int numSearch = stoi(strSearch);
+    //     target = allMembers.member_search(numSearch);
+    // }catch(const exception& e){
+    //     target = allMembers.member_search(strSearch);
+    // }
+
+    // if(target.is_null()){
+    //     statusBar()->showMessage(tr("not found"));
+    //     return;
+    // }
+
+    // memberTable->setRowCount(0);
+    // allMembers.Delete(target);
 }

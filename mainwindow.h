@@ -40,6 +40,8 @@ private:
     void getSales();
     void setYearList();
     void searchMemButtonClicked();
+    void delMemButtonClicked();
+    void addMemButtonClicked();
     void searchSoldButtonClicked();
 
     node<product_list> *daySales;
@@ -68,6 +70,8 @@ private:
     QWidget *memberInfoTab;
     QLineEdit *searchMemberLineEdit;
     QPushButton *searchMemButton;
+    QPushButton *delMemButton;
+    QPushButton *addMemButton;
     QTableWidget *memberTable;
 
     // Item Sales Tab

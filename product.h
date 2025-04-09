@@ -13,6 +13,7 @@
 //-------------------------------------------------------------
 
 #include <QFile>
+#include <QTimer>
 #include <QStringList>
 #include <QTableWidget>
 #include <QTextStream>
