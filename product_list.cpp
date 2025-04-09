@@ -1,7 +1,11 @@
 #include "mainwindow.h"
 
 //To do: Implement member container class so that can use the names collected in this method
-product_list::product_list(const QString filename, List<p_member> allMembers, List<product>& allProduct, node<p_member>*& todayMembers) {
+product_list::product_list(const QString filename,
+                           List<p_member> allMembers,
+                           List<product> &allProduct,
+                           node<p_member> *&todayMembers)
+{
     head = nullptr;
     size = 0;
 
@@ -10,8 +14,7 @@ product_list::product_list(const QString filename, List<p_member> allMembers, Li
     infile.open(QIODevice::ReadOnly | QIODevice::Text);
 
     //Loop til eof
-    while (true)
-    {
+    while (true) {
         int month, day, year, id, quantity;
         double price;
         std::string name;
@@ -30,12 +33,10 @@ product_list::product_list(const QString filename, List<p_member> allMembers, Li
 
         p_member newMember = *(allMembers.member_search(id));
 
-        if (size == 0)
-        {
+        if (size == 0) {
             delete todayMembers;
             todayMembers = new node<p_member>(newMember);
-        }
-        else
+        } else
             _insert_head(todayMembers, newMember);
 
         //Get product name
@@ -62,16 +63,15 @@ product_list::product_list(const QString filename, List<p_member> allMembers, Li
     }
 
     //Reverse order to match dailyMembers
-    node<product>* walker = head;
-    node<product>* reversed = nullptr;
-    while(walker != nullptr){
+    node<product> *walker = head;
+    node<product> *reversed = nullptr;
+    while (walker != nullptr) {
         reversed = _insert_head<product>(reversed, walker->_item);
         walker = walker->_next;
     }
 
-    for (node<product>* current = head; current != nullptr;)
-    {
-        node<product>* placehold = current->_next;
+    for (node<product> *current = head; current != nullptr;) {
+        node<product> *placehold = current->_next;
         delete current;
         current = placehold;
     }
@@ -81,15 +81,15 @@ product_list::product_list(const QString filename, List<p_member> allMembers, Li
     infile.close();
 }
 
-product_list::product_list(const product_list& otherList) {
+product_list::product_list(const product_list &otherList)
+{
     //Initialize static attribute
     head = nullptr;
     size = 0;
     setDate(otherList.getMonth(), otherList.getDay(), otherList.getYear());
 
     //Add copy of each product entry to this list
-    for (node<product>* current = otherList.head; current != nullptr; current = current->_next){
-
+    for (node<product> *current = otherList.head; current != nullptr; current = current->_next) {
         //-------------------------------------------------------
         //make sure no ptr in product, or it will be shallow copy
         product newProd = current->_item;
@@ -99,76 +99,88 @@ product_list::product_list(const product_list& otherList) {
     }
 }
 
-product_list::~product_list() {
+product_list::~product_list()
+{
     _clear_list<product>(head);
 }
 
-
-std::string product_list::getDate() const {
-    std::string dateStr = std::to_string(date[0]) + "/" + std::to_string(date[1]) + "/" + std::to_string(date[2]);
+std::string product_list::getDate() const
+{
+    std::string dateStr = std::to_string(date[0]) + "/" + std::to_string(date[1]) + "/"
+                          + std::to_string(date[2]);
     return dateStr;
 }
 
-bool product_list::isEmpty() {
+bool product_list::isEmpty()
+{
     if (size == 0 || head == nullptr)
         return true;
     else
         return false;
 }
 
-void product_list::setHead(node<product>* head) {
+void product_list::setHead(node<product> *head)
+{
     this->head = head;
 }
 
-void product_list::setSize(int size) {
+void product_list::setSize(int size)
+{
     this->size = size;
 }
 
-void product_list::incSize(int amount) {
+void product_list::incSize(int amount)
+{
     size += amount;
 }
 
-void product_list::setDate(int month, int day, int year) {
+void product_list::setDate(int month, int day, int year)
+{
     date[0] = month;
     date[1] = day;
     date[2] = year;
 }
 
 //check if repeated product exist if so return ptr to that repeated product
-node<product>* product_list::checkProducts(product prod) {
+node<product> *product_list::checkProducts(product prod)
+{
     return _search_list<product>(head, prod);
 }
 
 //If product exists, add to its quantity, else add new product node to head
-void product_list::addProduct(product prod, bool unique) {
-    node<product>* addSpot = checkProducts(prod);
+void product_list::addProduct(product prod, bool unique)
+{
+    node<product> *addSpot = checkProducts(prod);
 
-    if (addSpot && !unique){
+    if (addSpot && !unique) {
         addSpot->_item.increaseQuantity(prod.getQuantity());
-    }
-    else{
+    } else {
         _insert_head<product>(head, prod);
         incSize();
     }
 }
 
 //Calc revenue of all products in list
-double product_list::calcTotal() {
+double product_list::calcTotal()
+{
     double result = 0;
-    for (node<product>* current = head; current != nullptr; current = current->_next)
+    for (node<product> *current = head; current != nullptr; current = current->_next)
         result += current->_item.getRevenue();
 
     return result;
 }
 
 //Sets values of cells for a given day report
-void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMembers, node<p_member>* todayMembers) {
+void product_list::setSalesTable(QTableWidget *tableWidget,
+                                 List<p_member> allMembers,
+                                 node<p_member> *todayMembers)
+{
     QStringList nameList;
 
     int basic = 0, preferred = 0, i = 0;
-    node<p_member>* currentMember = todayMembers;
-    for (node<product>* current = head; current != nullptr; i++, currentMember = currentMember->_next)
-    {
+    node<p_member> *currentMember = todayMembers;
+    for (node<product> *current = head; current != nullptr;
+         i++, currentMember = currentMember->_next) {
         //Add vertival head labels per row
         nameList.append(QString::number(i + 1));
 
@@ -176,7 +188,8 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
         std::string price;
         QString qname, qdate, qmember;
         qname = QString::fromStdString(current->_item.getName());
-        qdate = QString::number(getMonth()) + "/" + QString::number(getDay()) + "/" + QString::number(getYear());
+        qdate = QString::number(getMonth()) + "/" + QString::number(getDay()) + "/"
+                + QString::number(getYear());
         qmember = QString::fromStdString(currentMember->_item.getName());
 
         double p = current->_item.getPrice();
@@ -194,10 +207,10 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
         QVariant priceValue(QString::fromStdString(price));
         QVariant quantityValue(current->_item.getQuantity());
 
-        QTableWidgetItem* nameItem = new QTableWidgetItem;
-        QTableWidgetItem* memberItem = new QTableWidgetItem;
-        QTableWidgetItem* priceItem = new QTableWidgetItem;
-        QTableWidgetItem* quantityItem = new QTableWidgetItem;
+        QTableWidgetItem *nameItem = new QTableWidgetItem;
+        QTableWidgetItem *memberItem = new QTableWidgetItem;
+        QTableWidgetItem *priceItem = new QTableWidgetItem;
+        QTableWidgetItem *quantityItem = new QTableWidgetItem;
 
         nameItem->setData(Qt::DisplayRole, nameValue);
         memberItem->setData(Qt::DisplayRole, memberValue);
@@ -210,7 +223,6 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
         tableWidget->setItem(i, 2, priceItem);
         tableWidget->setItem(i, 3, quantityItem);
 
-
         if (currentMember->_item.getType() == "Preferred")
             preferred++;
         else
@@ -218,8 +230,7 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
 
         if (current->_next)
             current = current->_next;
-        else
-        {
+        else {
             i++;
             break;
         }
@@ -231,9 +242,9 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
     nameList.append("Preferred Members");
     tableWidget->setVerticalHeaderLabels(nameList);
 
-    QTableWidgetItem* basicItem = new QTableWidgetItem;
+    QTableWidgetItem *basicItem = new QTableWidgetItem;
     basicItem->setData(Qt::DisplayRole, basic);
-    QTableWidgetItem* preferredItem = new QTableWidgetItem;
+    QTableWidgetItem *preferredItem = new QTableWidgetItem;
     preferredItem->setData(Qt::DisplayRole, preferred);
 
     tableWidget->setItem(i + 1, 0, basicItem);
@@ -241,23 +252,20 @@ void product_list::setSalesTable(QTableWidget *tableWidget, List<p_member> allMe
 }
 
 //Sets table for yearly report
-void product_list::setYearTable(QTableWidget* tableWidget) {
+void product_list::setYearTable(QTableWidget *tableWidget)
+{
     QStringList nameList;
-    node<product>* best, *worst;        //points to best and worst performing products
+    node<product> *best, *worst; //points to best and worst performing products
     best = worst = nullptr;
 
     int i = 0;
     double totalRevenue = 0;
-    for (node<product>* current = head; current != nullptr; i++)
-    {
+    for (node<product> *current = head; current != nullptr; i++) {
         //If first cycle, set both to first value.
-        if (best == nullptr)
-        {
+        if (best == nullptr) {
             best = current;
             worst = current;
-        }
-        else
-        {
+        } else {
             //If not first, switch the best and worst pointers if the given value is greater than best or less than worst
             if (best->_item.getRevenue() < current->_item.getRevenue())
                 best = current;
@@ -285,14 +293,13 @@ void product_list::setYearTable(QTableWidget* tableWidget) {
         QString qname;
         qname = QString::fromStdString(current->_item.getName());
 
-
         QVariant nameValue(qname);
         QVariant quantityValue(current->_item.getQuantity());
         QVariant revenueValue(QString::fromStdString(revenue));
 
-        QTableWidgetItem* nameItem = new QTableWidgetItem;
-        QTableWidgetItem* quantityItem = new QTableWidgetItem;
-        QTableWidgetItem* revenueItem = new QTableWidgetItem;
+        QTableWidgetItem *nameItem = new QTableWidgetItem;
+        QTableWidgetItem *quantityItem = new QTableWidgetItem;
+        QTableWidgetItem *revenueItem = new QTableWidgetItem;
 
         nameItem->setData(Qt::DisplayRole, nameValue);
         quantityItem->setData(Qt::DisplayRole, quantityValue);
@@ -306,8 +313,7 @@ void product_list::setYearTable(QTableWidget* tableWidget) {
         //If next exists, continue, else break
         if (current->_next)
             current = current->_next;
-        else
-        {
+        else {
             i++;
             break;
         }
@@ -338,9 +344,9 @@ void product_list::setYearTable(QTableWidget* tableWidget) {
     QVariant bestValue(qbest);
     QVariant worstValue(qworst);
 
-    QTableWidgetItem* totalRevenueItem = new QTableWidgetItem;
-    QTableWidgetItem* bestItem = new QTableWidgetItem;
-    QTableWidgetItem* worstItem = new QTableWidgetItem;
+    QTableWidgetItem *totalRevenueItem = new QTableWidgetItem;
+    QTableWidgetItem *bestItem = new QTableWidgetItem;
+    QTableWidgetItem *worstItem = new QTableWidgetItem;
 
     totalRevenueItem->setData(Qt::DisplayRole, QString::fromStdString(totalRevenueStr));
     bestItem->setData(Qt::DisplayRole, bestValue);
@@ -352,16 +358,18 @@ void product_list::setYearTable(QTableWidget* tableWidget) {
 }
 
 //Assignment operator
-product_list& product_list::operator= (const product_list& otherList) {
+product_list &product_list::operator=(const product_list &otherList)
+{
     //Self assignment case
-    if (this == &otherList) return *this;
+    if (this == &otherList)
+        return *this;
 
     _clear_list(head);
     size = 0;
 
     setDate(otherList.getMonth(), otherList.getDay(), otherList.getYear());
 
-    for (node<product>* current = otherList.head; current != nullptr; current = current->_next){
+    for (node<product> *current = otherList.head; current != nullptr; current = current->_next) {
         product newProd = current->_item;
         addProduct(newProd);
     }
@@ -369,13 +377,12 @@ product_list& product_list::operator= (const product_list& otherList) {
     return *this;
 }
 
-product_list operator+ (const product_list& list1, const product_list& list2) {
+product_list operator+(const product_list &list1, const product_list &list2)
+{
     product_list newList = list1;
 
-    for (node<product>* current = list2.head; current != nullptr; current = current->_next)
-    {
+    for (node<product> *current = list2.head; current != nullptr; current = current->_next) {
         newList.addProduct(current->_item);
     }
     return newList;
 }
-

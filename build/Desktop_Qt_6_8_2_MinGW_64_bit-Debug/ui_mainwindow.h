@@ -30,15 +30,18 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
         MainWindow->resize(800, 600);
+        MainWindow->setLayoutDirection(Qt::LayoutDirection::LeftToRight);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 800, 18));
+        menubar->setGeometry(QRect(0, 0, 800, 17));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
+        statusbar->setEnabled(true);
+        statusbar->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
         MainWindow->setStatusBar(statusbar);
 
         retranslateUi(MainWindow);
